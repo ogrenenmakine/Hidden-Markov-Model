@@ -1,4 +1,4 @@
-clc;clear;
+clc;clear;close all;
 m = 2;
 n = 25;
 for i = 1:1
@@ -9,9 +9,9 @@ for i = 1:1
     ll = randperm(length(data));
     train = data(1:(length(data)*4/5),:);
     val = data((length(data)*4/5)+1:length(data),:);
-    [Amax, Bmax, h, hval] = baumwelch(train, val, A, B, p, n, m);
-    obsv_prob(test, A, B, p, n)
-    obsv_prob(test, Amax, Bmax, p, n)
+    [Amax, Bmax, logp, h, hval] = baumwelch(train, val, A, B, p, n, m);
+    exp(obsv_prob(test, log(A), B, log(p), n))
+    exp(obsv_prob(test, Amax, Bmax, logp, n))
     viterbi(test, A, B, p, n);
     plot(h)
     hold on;

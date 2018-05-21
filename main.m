@@ -5,6 +5,7 @@ n = input(prompt);
 createRandModel(n, m);
 [A, B, p] = readModel('model.txt',n,m);
 test = dlmread('testdata.txt');
+ctrain = false;
 while true
     prompt = 'Your commands, sir?\n(0)Refresh A and B type: refresh\n(1)For observation probability of test sequence type:obsv_prob\n(2)For best state sequence type:virterbi\n(3)To train the model type:learn\n(4)To exit type:exit\n';
     cm = input(prompt,'s');
@@ -12,15 +13,21 @@ while true
         createRandModel(n, m);
         [A, B, p] = readModel('model.txt',n,m);
         test = dlmread('testdata.txt');
-    elseif strcmp(cm,'obsv_prob')
-        obsv_prob(test, A, B, p, n)
+    elseif strcmp(cm,'obsv_prob') & ctrain == false
+        exp(obsv_prob(test, log(A), B, log(p), n))
+    elseif strcmp(cm,'obsv_prob') & ctrain == true
+        exp(obsv_prob(test, Amax, Bmax, logp, n))
     elseif strcmp(cm,'viterbi')
         viterbi(test, A, B, p, n)
     elseif strcmp(cm,'learn')
         data = dlmread('data.txt');
-        [A, B, h] = baumwelch(data, A, B, p, n, m);
+        ll = randperm(length(data));
+        train = data(1:(length(data)*4/5),:);
+        val = data((length(data)*4/5)+1:length(data),:);
+        [Amax, Bmax, logp, h, hval] = baumwelch(train, val, A, B, p, n, m);
         plot(h)
         hold on;
+        ctrain = true;
     elseif strcmp(cm,'exit')
         break
     else

@@ -1,4 +1,4 @@
-function [Amax,Bmax,h,hval] = baumwelch(train, val, A, B, p, n, m)
+function [Amax,Bmax,logp,h,hval] = baumwelch(train, val, A, B, p, n, m)
     nSeq = length(train);
     logp = log(p);
     A = log(A);
@@ -7,15 +7,15 @@ function [Amax,Bmax,h,hval] = baumwelch(train, val, A, B, p, n, m)
     phi = log(rand(n,m)); hval = -Inf; h = -Inf;
     % EM variables initialization
     logmval = -Inf;
-    logmmax = -Inf;
+    logmmax = Inf;
     logmold = 0;
     iter = 1;
     for k = 1:250
         logmold = logmval;
         [logm, alpha, beta, delta, gamma] = obsv_prob(train, A, B, logp, n);
+        [logmval, ~, ~, ~, ~] = obsv_prob(val, A, B, logp, n);
         [logp, A, B] = maximization(train, delta, gamma, B, n, m);
-        [logmval,~,~,~,~] = obsv_prob(train, A, B, logp, n);
-        if logmval > logmmax
+        if logmval < logmmax
             Amax = A;
             Bmax = B;
             iter

@@ -5,7 +5,7 @@ function [ x ] = logsumexp( x )
     elseif mx == Inf
         x = Inf;
     else
-        x = sum(sum(exp(x - mx))) + mx;
+        x = log(sum(sum(exp(x - mx)))) + mx;
     end
 end
 

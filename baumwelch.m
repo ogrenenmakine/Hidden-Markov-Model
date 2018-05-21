@@ -18,7 +18,6 @@ function [Amax,Bmax,logp,h,hval] = baumwelch(train, val, A, B, p, n, m)
         if logmval < logmmax
             Amax = A;
             Bmax = B;
-            iter
             logmmax = logmval;
         end
         iter = iter + 1;

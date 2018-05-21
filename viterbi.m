@@ -6,7 +6,7 @@ function [ bestpath ] = viterbi(o, A, B, p, n)
     delta = zeros(nObs,n);
     psi = ones(nObs,n);
     for i = 1:n
-        delta(1,i) = p(i) + B(i,o(1)+1);
+        delta(1,i) = log(p(i)) + log(B(i,o(1)+1));
     end
     for t = 2:nObs
         for j = 1:n
@@ -18,7 +18,7 @@ function [ bestpath ] = viterbi(o, A, B, p, n)
                     maxval = newval;
                     maxind = r;
                 end
-                delta(t,j) = maxval + B(j,o(t)+1);
+                delta(t,j) = maxval + log(B(j,o(t)+1));
                 psi(t,j) = maxind;
         end
     end

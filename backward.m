@@ -6,7 +6,7 @@ function [ beta ] = backward(o, A, B, p, n)
     for t = (nObs-1):-1:1
         for j = 1:n
             for i = 1:n
-                l(i) = beta(t+1,i) + A(i,j) + B(j,o(t)+1);
+                l(i) = beta(t+1,i) + A(i,j) + log(B(j,o(t)+1));
             end
             beta(t,j) = logsumexp(l);
         end

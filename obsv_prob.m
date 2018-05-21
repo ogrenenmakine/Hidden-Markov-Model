@@ -12,7 +12,7 @@ function [logm, alpha, beta, delta, gamma] = obsv_prob(o, A, B, logp, n)
     for t = 1:(nObs-1)
         for i = 1:n
             for j = 1:n
-                delta(t,i,j) = exp(alpha(t,i)+A(i,j)+B(j,o(t+1)+1)+beta(t+1,j)-logm);
+                delta(t,i,j) = exp(alpha(t,i)+A(i,j)+log(B(j,o(t+1)+1))+beta(t+1,j)-logm);
             end
         end
     end

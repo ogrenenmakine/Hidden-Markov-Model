@@ -3,12 +3,12 @@ function [ alpha, logm ] = forward(o, A, B, logp, n)
     alpha = zeros(nObs, n);
     l = zeros(n,1);
     for i = 1:n
-        alpha(1,i) = logp(i) + B(i,o(1)+1);
+        alpha(1,i) = logp(i) + log(B(i,o(1)+1));
     end
     for t = 2:nObs
         for j = 1:n
             for i = 1:n
-                l(i) = alpha(t-1,i) + A(i,j) + B(j,o(1)+1);
+                l(i) = alpha(t-1,i) + A(i,j) + log(B(j,o(1)+1));
             end
             alpha(t,j) = logsumexp(l);
         end

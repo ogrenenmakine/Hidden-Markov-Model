@@ -1,8 +1,10 @@
-function [A,B,h] = baumwelch(data, A, B, logp, n, m)
+function [A,B,h] = baumwelch(data, A, B, p, n, m)
     nSeq = length(data);
+    logp = log(p);
+    A = log(A);
     % random initialization
-    alpha = rand(m,m);
-    phi = rand(n,m); h = -Inf;
+    alpha = log(rand(m,m));
+    phi = log(rand(n,m)); h = -Inf;
     % EM variables initialization
     logm = -Inf;
     logmold = 0;

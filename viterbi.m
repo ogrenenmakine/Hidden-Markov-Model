@@ -1,7 +1,5 @@
 function [ bestpath ] = viterbi(o, A, B, p, n)
     A = log(A);
-    B = log(B);
-    p = log(p);
     nObs = length(o);
     delta = zeros(nObs,n);
     psi = ones(nObs,n);

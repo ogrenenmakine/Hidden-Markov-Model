@@ -1,12 +1,12 @@
 function createModel(n, m, ch)
     if ch
-        A = [0.95, 0.9;0.05,0.1];
+        A = [0.95, 0.05;0.1, 0.9];
         B = [0.95, 0.05;0.2, 0.8];
         p = [0.95; 0.05];
     else
         A = rand(n,n);
         B = rand(n,m);
-        A = A./repmat(sum(A,1),n,1);
+        A = A./repmat(sum(A,2),1,n);
         B = B./repmat(sum(B,2),1,m);
         p = rand(n,1);
         p = p ./ sum(p);

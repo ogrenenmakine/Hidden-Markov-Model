@@ -1,4 +1,4 @@
-function [A, B, p, avgtrain, logliketrain] = baumwelch(train, A, B, p)
+function [A, B, p, avgtrain] = baumwelch(train, A, B, p)
     % baumwelch EM algorithm
     % train: nObsxT, sequence
     % A: NxN, trasition matrix
@@ -16,9 +16,9 @@ function [A, B, p, avgtrain, logliketrain] = baumwelch(train, A, B, p)
         logA = log(A);
         logB = log(B);
         logp = log(p);
-        Pnew = ones(size(logp));
-        Anew = ones(size(logA));
-        Bnew = ones(size(logB));
+        Pnew = zeros(size(logp)) + eps;
+        Anew = zeros(size(logA)) + eps;
+        Bnew = zeros(size(logB)) + eps;
         T = size(train,2);
         [N, M] = size(B);
         for idx = 1:size(train,1)
@@ -34,7 +34,7 @@ function [A, B, p, avgtrain, logliketrain] = baumwelch(train, A, B, p)
             % update A, the transitionmatrix
             chi = zeros(size(A,1));
             for t = 1:(T-1)
-                tmp = (exp(logalpha(:,t))*exp(((logbeta(:,t+1) + logB(:,input(t+1)+1))'))) + exp(logA);
+                tmp = (exp(logalpha(:,t))*exp(((logbeta(:,t+1) + logB(:,input(t+1)+1))'))).*A;
                 chi = chi + tmp / sum(sum(tmp));
             end
             Anew = Anew + chi;
@@ -42,15 +42,15 @@ function [A, B, p, avgtrain, logliketrain] = baumwelch(train, A, B, p)
             for k = 1:size(B,2)
                 Bnew(:,k) = Bnew(:,k) + sum(gamma(:,input==k),2);
             end
-            logliketrain = cat(1,logliketrain,sum(logalphaScale));
+            logliketrain = cat(1,logliketrain,-sum(logalphaScale));
         end
-        avgtrain = cat(1,avgtrain,logsumexp(logliketrain)/size(train,1));
+        avgtrain = cat(1,avgtrain,sum(logliketrain)/size(train,1));
         % normalization of updated matrices
         p = Pnew ./ sum(Pnew);
-        A = Anew ./ repmat(sum(Anew,1),size(A,1),1);
+        A = Anew ./ repmat(sum(Anew,2),1,size(A,2));
         B = Bnew ./ repmat(sum(Bnew,2),1,size(B,2));
         % convergence break rule
-        if abs(1 - avgtrain(i)/avgtrain(i+1)) < 1e-6
+        if abs(1 - avgtrain(i)/avgtrain(i+1)) < 1e-4
             break;
         end
     end

@@ -1,18 +1,21 @@
-function [ alpha, logm ] = forward(o, A, B, logp, n)
-    nObs = length(o);
-    alpha = zeros(nObs, n);
-    l = zeros(n,1);
-    for i = 1:n
-        alpha(1,i) = logp(i) + log(B(i,o(1)+1));
+function [logalpha, logalphaScale] = forward(input, logA, logB, logp)
+    % forward calculation of log-posterior probability
+    % input: 1xT, sequence
+    % logA: NxN, trasition matrix
+    % logB: NxM, emission matrix
+    % logp: Nx1, prior probabilities
+    % output parameters
+    % logalpha: NxT, forward probabilities
+    % logalphaScale: T, scaling scalars of logalpha
+    [N, M] = size(logB);
+    T = length(input);
+    logalpha = ones(N,T);
+    logalpha(:,1) = logp + logB(:,input(1)+1);
+    logalphaScale = - logsumexp(logalpha(:,1));
+    for t = 2:T
+        logalpha(:,t) = log(((exp(logA))')*exp(logalpha(:,t-1))) + logB(:,input(t)+1);
+        logalphaScale(t) = - logsumexp(logalpha(:,t));
+        logalpha(:,t) = logalpha(:,t) + logalphaScale(t);
     end
-    for t = 2:nObs
-        for j = 1:n
-            for i = 1:n
-                l(i) = alpha(t-1,i) + A(i,j) + log(B(j,o(1)+1));
-            end
-            alpha(t,j) = logsumexp(l);
-        end
-    end
-    logm = logsumexp(alpha(end,:));
 end
 

@@ -1,11 +1,11 @@
-function [ x ] = logsumexp( x )
-    mx = max(max(x));
-    if mx == -Inf
-        x = -Inf;
-    elseif mx == Inf
-        x = Inf;
+function [ logp ] = logsumexp( logp )
+    mlogp = max(max(logp));
+    if mlogp == -Inf
+        logp = -Inf;
+    elseif mlogp == Inf
+        logp = Inf;
     else
-        x = log(sum(sum(exp(x - mx)))) + mx;
+        logp = log(sum(sum(exp(logp - mlogp)))) + mlogp;
     end
 end
 

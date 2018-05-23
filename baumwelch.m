@@ -1,32 +1,48 @@
-function [Amax,Bmax,logp,h,hval] = baumwelch(train, val, A, B, p, n, m)
-    nSeq = length(train);
-    logp = log(p);
-    A = log(A);
-    % random initialization
-    alpha = log(rand(m,m));
-    phi = log(rand(n,m)); hval = -Inf; h = -Inf;
-    % EM variables initialization
-    logmval = -Inf;
-    logmmax = Inf;
-    logmold = 0;
-    iter = 1;
-    for k = 1:250
-        logmold = logmval;
-        [logm, alpha, beta, delta, gamma] = obsv_prob(train, A, B, logp, n);
-        [logmval, ~, ~, ~, ~] = obsv_prob(val, A, B, logp, n);
-        [logp, A, B] = maximization(train, delta, gamma, B, n, m);
-        if logmval < logmmax
-            Amax = A;
-            Bmax = B;
-            logmmax = logmval;
+function [A, B, p, avgtrain, avgval, logliketrain, loglikeval] = baumwelch(train, val, A, B, p)
+    avgtrain = 0;
+    avgval = 0;
+    for i = 1:1000
+        logliketrain = 0;
+        loglikeval = 0;
+        logA = log(A);
+        logB = log(B);
+        logp = log(p);
+        Pnew = ones(size(logp));
+        Anew = ones(size(logA));
+        Bnew = ones(size(logB));
+        for idx = 1:size(train,1)
+            input = train(idx,:);
+            T = length(input);
+            [logalpha, logalphaScale] = forward(input, logA, logB, logp);
+            logbeta = backward(input, logA, logB, logalphaScale);
+            loggamma = logalpha + logbeta;
+            loggamma = loggamma - logsumexp(loggamma);
+            chi = zeros(size(A,1));
+            for t = 1:(T-1)
+                tmp = (exp(logalpha(:,t))*exp(((logbeta(:,t+1) + logB(:,input(t+1)+1))'))) + exp(logA);
+                chi = chi + tmp / sum(sum(tmp));
+            end
+            Pnew = Pnew + exp(loggamma(:,1));
+            Anew = Anew + chi;
+            for k = 1:size(B,2)
+                Bnew(:,k) = Bnew(:,k) + sum(exp(loggamma(:,input==k)),2);
+            end
+            logliketrain = cat(1,logliketrain,logsumexp(logalphaScale));
         end
-        iter = iter + 1;
-        hval = cat(1,hval,logmval);
-        h = cat(1,h,logm);
-        if iter > 1 & (abs(logmold-logmval) <= 1e-5)
-            break
-            h = h(2:end);
-            hval = hval(2:end);
+        avgtrain = cat(1,avgtrain,logsumexp(logliketrain)/size(train,1));
+        for idx = 1:size(val,1)
+            input = val(idx,:);
+            T = length(input);
+            [logalpha, logalphaScale] = forward(input, logA, logB, logp);
+            loglikeval = cat(1,loglikeval,logsumexp(logalphaScale));
+        end
+        avgval = cat(1,avgval,logsumexp(loglikeval)/size(val,1));
+        p = Pnew ./ sum(Pnew);
+        A = Anew ./ repmat(sum(Anew,1),size(A,1),1);
+        B = Bnew ./ repmat(sum(Bnew,2),1,size(B,2));
+        if i > 1 & abs(1 - loglikeval(i-1)/loglikeval(i)) < 1e-6
+            break;
         end
     end
 end
+

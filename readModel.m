@@ -35,4 +35,3 @@ function [A, B, p] = readModel( fileName, n, m )
     end
     fclose(fid);
 end
-

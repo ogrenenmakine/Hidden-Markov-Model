@@ -11,7 +11,7 @@ while true
         [A, B, p] = readModel('model.txt',n,m);
         test = dlmread('testdata.txt');
         [~, obs_prob] = forward(test, log(A), log(B), log(p));
-        sum(obs_prob)
+        obs_prob = (logsumexp(obs_prob))
         bestpath = viterbi(test, A, B, p)
         ctrain = false;
     elseif strcmp(cm,'random')
@@ -24,10 +24,10 @@ while true
         ctrain = false;
     elseif strcmp(cm,'obsv_prob') & ctrain == false
         [~, obs_prob] = forward(test, log(A), log(B), log(p));
-        (logsumexp(obs_prob))
+        obs_prob = (logsumexp(obs_prob))
     elseif strcmp(cm,'obsv_prob') & ctrain == true
         [~, obs_prob] = forward(test, log(Anew), log(Bnew), log(pnew));
-        (logsumexp(obs_prob))
+        obs_prob_aftertrain = (logsumexp(obs_prob))
     elseif strcmp(cm,'viterbi') & ctrain == false
         bestpath = viterbi(test, A, B, p)
     elseif strcmp(cm,'viterbi') & ctrain == true
@@ -36,9 +36,9 @@ while true
         data = dlmread('data.txt');
         [Anew, Bnew, pnew, avgtrain] = baumwelch(data, A, B, p);
         [~, previous_probability] = forward(test, log(A), log(B), log(p));
-        (logsumexp(previous_probability))
+        obs_prob = (logsumexp(previous_probability))
         [~, aftertraining_probability] = forward(test, log(Anew), log(Bnew), log(pnew));
-        (logsumexp(aftertraining_probability))
+        obs_prob_aftertrain = (logsumexp(aftertraining_probability))
         figure
         plot(avgtrain)
         ctrain = true;

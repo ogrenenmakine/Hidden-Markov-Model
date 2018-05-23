@@ -40,7 +40,7 @@ function [A, B, p, avgtrain] = baumwelch(train, A, B, p)
             Anew = Anew + chi;
             % update B, the emission matrix
             for k = 1:size(B,2)
-                Bnew(:,k) = Bnew(:,k) + sum(gamma(:,input==k),2);
+                Bnew(:,k) = Bnew(:,k) + sum(gamma(:,(input+1)==k),2);
             end
             logliketrain = cat(1,logliketrain,-sum(logalphaScale));
         end
@@ -55,4 +55,3 @@ function [A, B, p, avgtrain] = baumwelch(train, A, B, p)
         end
     end
 end
-

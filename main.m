@@ -13,42 +13,36 @@ while true
         [~, obs_prob] = forward(test, log(A), log(B), log(p));
         logsumexp(obs_prob)
         bestpath = viterbi(test, A, B, p)
+        ctrain = false;
     elseif strcmp(cm,'random')
         m = 2;
-        prompt = 'Enter the number of hidden states:';
-        m = input(prompt);
+        prompt2 = 'Enter the number of hidden states:';
+        n = input(prompt2);
         createModel(n, m, false);
         [A, B, p] = readModel('model.txt',n,m);
         test = dlmread('testdata.txt');
+        ctrain = false;
     elseif strcmp(cm,'obsv_prob') & ctrain == false
         [~, obs_prob] = forward(test, log(A), log(B), log(p));
         logsumexp(obs_prob)
     elseif strcmp(cm,'obsv_prob') & ctrain == true
-        [~, obs_prob] = forward(test, log(Amax), log(Bmax), log(pmax));
+        [~, obs_prob] = forward(test, log(Anew), log(Bnew), log(pnew));
         logsumexp(obs_prob)
     elseif strcmp(cm,'viterbi') & ctrain == false
         bestpath = viterbi(test, A, B, p)
     elseif strcmp(cm,'viterbi') & ctrain == true
-        bestpath = viterbi(test, Anew, Bnew, pnew)
+        bestpathaftertraining = viterbi(test, Anew, Bnew, pnew)
     elseif strcmp(cm,'learn')
-        data = dlmread('data.txt'); rlist = randperm(length(data));
-        train = data(rlist(1:(length(data)*4/5)),:);
-        val = data(rlist((length(data)*4/5)+1:length(data)),:);
-        [Anew, Bnew, pnew, avgtrain, avgval, logliketrain, loglikeval] = baumwelch(train, val, A, B, p);
+        data = dlmread('data.txt');
+        [Anew, Bnew, pnew, avgtrain, logliketrain] = baumwelch(data, A, B, p);
         [~, previous_probability] = forward(test, log(A), log(B), log(p));
         logsumexp(previous_probability)
-        [~, aftertraining_probability] = forward(test, log(A), log(B), log(p));
+        [~, aftertraining_probability] = forward(test, log(Anew), log(Bnew), log(pnew));
         logsumexp(aftertraining_probability)
         figure
         plot(avgtrain)
-        hold on;
-        plot(avgval)
-        hold off;
         figure
         plot(logliketrain)
-        hold on;
-        plot(loglikeval)
-        hold off;
         ctrain = true;
     elseif strcmp(cm,'exit')
         break

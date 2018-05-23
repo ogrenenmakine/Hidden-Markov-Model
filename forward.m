@@ -14,7 +14,7 @@ function [logalpha, logalphaScale] = forward(input, logA, logB, logp)
     logalphaScale = - logsumexp(logalpha(:,1));
     for t = 2:T
         logalpha(:,t) = log(((exp(logA))')*exp(logalpha(:,t-1))) + logB(:,input(t)+1);
-        logalphaScale(t) = - logsumexp(logalpha(:,t));
+        logalphaScale(t) = -logsumexp(logalpha(:,t));
         logalpha(:,t) = logalpha(:,t) + logalphaScale(t);
     end
 end

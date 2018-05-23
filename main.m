@@ -4,14 +4,15 @@ fprintf('Your commands, sir?\n(0)Predefined type:predefined\n(1)Random initializ
 while true
     prompt = 'type:';
     cm = input(prompt,'s');
+    data = dlmread('data.txt');
+    test = dlmread('testdata.txt');
     if strcmp(cm,'predefined')
         m = 2;
         n = 2;
         createModel(n, m, true);
         [A, B, p] = readModel('model.txt',n,m);
-        test = dlmread('testdata.txt');
         [~, obs_prob] = forward(test, log(A), log(B), log(p));
-        obs_prob = (logsumexp(obs_prob))
+        obs_prob = exp(-sum(obs_prob))
         bestpath = viterbi(test, A, B, p)
         ctrain = false;
     elseif strcmp(cm,'random')
@@ -20,25 +21,23 @@ while true
         n = input(prompt2);
         createModel(n, m, false);
         [A, B, p] = readModel('model.txt',n,m);
-        test = dlmread('testdata.txt');
         ctrain = false;
     elseif strcmp(cm,'obsv_prob') & ctrain == false
         [~, obs_prob] = forward(test, log(A), log(B), log(p));
-        obs_prob = (logsumexp(obs_prob))
+        obs_prob = exp(-sum(obs_prob))
     elseif strcmp(cm,'obsv_prob') & ctrain == true
         [~, obs_prob] = forward(test, log(Anew), log(Bnew), log(pnew));
-        obs_prob_aftertrain = (logsumexp(obs_prob))
+        obs_prob_aftertrain = exp(-sum(obs_prob))
     elseif strcmp(cm,'viterbi') & ctrain == false
         bestpath = viterbi(test, A, B, p)
     elseif strcmp(cm,'viterbi') & ctrain == true
         bestpathaftertraining = viterbi(test, Anew, Bnew, pnew)
     elseif strcmp(cm,'learn')
-        data = dlmread('data.txt');
         [Anew, Bnew, pnew, avgtrain] = baumwelch(data, A, B, p);
         [~, previous_probability] = forward(test, log(A), log(B), log(p));
-        obs_prob = (logsumexp(previous_probability))
+        obs_prob = exp(-sum(previous_probability))
         [~, aftertraining_probability] = forward(test, log(Anew), log(Bnew), log(pnew));
-        obs_prob_aftertrain = (logsumexp(aftertraining_probability))
+        obs_prob_aftertrain = exp(-sum(aftertraining_probability))
         figure
         plot(avgtrain)
         ctrain = true;

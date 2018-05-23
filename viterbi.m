@@ -1,4 +1,9 @@
 function [ bestpath ] = viterbi(test, A, B, p)
+    % viterbi algorithm
+    % test: 1xT, sequence
+    % A: NxN, trasition matrix
+    % B: NxM, emission matrix
+    % p: Nx1, prior probabilities
     [N, M] = size(B);
     T = length(test);
     bestpath = zeros(1,T);

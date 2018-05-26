@@ -24,8 +24,8 @@ function [A, B, p, avgtrain] = baumwelch(train, A, B, p)
         for idx = 1:size(train,1)
             input = train(idx,:);
             % forward and backward algorithms
-            [logalpha, logalphaScale] = forward(input, logA, logB, logp);
-            logbeta = backward(input, logA, logB, logalphaScale);
+            [logalpha, logpseq] = forward(input, logA, logB, logp);
+            logbeta = backward(input, logA, logB, logpseq);
             % gamma, P(qt=Si|O,\lambda)
             loggamma = logalpha + logbeta;
             gamma = exp(loggamma - repmat(logsumexp(loggamma),M,1));
@@ -42,7 +42,7 @@ function [A, B, p, avgtrain] = baumwelch(train, A, B, p)
             for k = 1:size(B,2)
                 Bnew(:,k) = Bnew(:,k) + sum(gamma(:,(input+1)==k),2);
             end
-            logliketrain = cat(1,logliketrain,-sum(logalphaScale));
+            logliketrain = cat(1,logliketrain,-sum(logpseq));
         end
         avgtrain = cat(1,avgtrain,sum(logliketrain)/size(train,1));
         % normalization of updated matrices

@@ -1,4 +1,4 @@
-function [A, B, p] = readModel( fileName, n, m )
+function [A, B, p] = readModel( fileName )
     fid=fopen(fileName);
     tline = fgetl(fid);
     A = [];

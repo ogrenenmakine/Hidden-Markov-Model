@@ -28,7 +28,7 @@ function [A, B, p, avgtrain] = baumwelch(train, A, B, p)
             logbeta = backward(input, logA, logB, logalphaScale);
             % gamma, P(qt=Si|O,\lambda)
             loggamma = logalpha + logbeta;
-            gamma = exp(loggamma - logsumexp(loggamma));
+            gamma = exp(loggamma - repmat(logsumexp(loggamma),M,1));
             % update p, the prior probabilities
             Pnew = Pnew + gamma(:,1);
             % update A, the transitionmatrix

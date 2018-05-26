@@ -6,11 +6,13 @@ while true
     cm = input(prompt,'s');
     data = dlmread('data.txt');
     test = dlmread('testdata.txt');
+    %data = data(2:end,:);
+    %test = data(1,:);
     if strcmp(cm,'predefined')
         m = 2;
         n = 2;
         createModel(n, m, true);
-        [A, B, p] = readModel('model.txt',n,m);
+        [A, B, p] = readModel('model.txt');
         [~, obs_prob] = forward(test, log(A), log(B), log(p));
         obs_prob = exp(-sum(obs_prob))
         bestpath = viterbi(test, A, B, p)
@@ -20,7 +22,7 @@ while true
         prompt2 = 'Enter the number of hidden states:';
         n = input(prompt2);
         createModel(n, m, false);
-        [A, B, p] = readModel('model.txt',n,m);
+        [A, B, p] = readModel('model.txt');
         ctrain = false;
     elseif strcmp(cm,'obsv_prob') & ctrain == false
         [~, obs_prob] = forward(test, log(A), log(B), log(p));
